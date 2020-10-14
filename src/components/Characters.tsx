@@ -1,42 +1,41 @@
 import Axios from 'axios'
 import React, {useEffect, useState} from 'react'
+import { Character } from './Character'
 
-interface Char {
-    name: string,
-    wikiUrl: string,
-    id: string,
-    gender: string,
-    birth: string,
-    race: string,
-    death: string,
-    hair: string,
-    realm: string,
-    spouse: string,
-    height: string
-}
 
 
 function Characters() {
     const [characters, setCharacters] = useState<Char[]>()
+    const [limit, setLimit] = useState(20)
+    const [offset, setOffset] = useState(0)
 
     useEffect(() => { 
-        const url = `https://the-one-api.dev/v2/character`
-        Axios.get(url, {
+        const url = "http://localhost:8762/lotrservice/character"
+        const url2 = `https://the-one-api.dev/v2/character?offset=${offset}&limit=${limit}`
+        Axios.get(url2, {
             headers: {
                 withCredentials: true,
-                Authorization: "Bearer xlF788JA0whvejdRbAFO",}
-        }).then((data) => {
+                "Authorization": "Bearer xlF788JA0whvejdRbAFO"
+        }}).then((data) => {
+            console.log(data);
             setCharacters(data.data.docs)
         })
-    }, [])
+    }, [limit, offset])
+
 
     return (
         <div>
             {characters?.map((character: Char) => (
-                <>
-                <p>{character.name}</p><a href={character.wikiUrl}>{character.wikiUrl}</a>
-                </>
+                <Character key={character.id} character={character}/>
             ))}
+            <button disabled={limit - 20 === 0? true: false} onClick={() => {
+                setLimit(limit - 20)
+                setOffset(offset - 20)
+            }}>Previous</button>
+            <button disabled={limit + 20 === characters?.length? true: false} onClick={() => {
+                setLimit(limit + 20)
+                setOffset(offset + 20)
+                }}>Next</button>
         </div>
     )
 }
